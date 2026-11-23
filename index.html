@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>G3 Lab</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="G3 Lab">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0A0A0A">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{--bg:#0A0A0A;--panel:#141414;--line:#262626;--txt:#FAFAFA;--mut:#8A8A8A;--acc:#C6FF3D;--warn:#E8FF00;--bad:#FF5A4D;color-scheme:dark}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.45 Inter,-apple-system,"Segoe UI",system-ui,sans-serif;-webkit-text-size-adjust:100%}
+.wrap{max-width:680px;margin:0 auto;padding:calc(14px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) calc(40px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+h1{font:600 22px "Space Grotesk",-apple-system,"Segoe UI",sans-serif;margin:0}h1 b{color:var(--acc)}
+h2{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin:0;font-weight:600}
+.tabs{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+.tabs button{border:0;background:transparent;color:var(--mut);padding:7px 12px;border-radius:7px;font:inherit;font-size:14px}
+.tabs button[aria-selected=true]{background:var(--acc);color:#0A0A0A;font-weight:600}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px}
+input,select,textarea,button{font:inherit;color:var(--txt)}
+input,select,textarea{background:#1c1c1c;border:1px solid var(--line);border-radius:8px;padding:10px;width:100%;min-width:0;font-size:16px}
+textarea{min-height:84px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:1px solid var(--acc);border-color:var(--acc)}
+label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mut)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.row>*{min-width:0}
+.btn{border:0;border-radius:9px;padding:12px 14px;font-weight:600;background:var(--acc);color:#0A0A0A;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--txt);border:1px solid var(--line);font-weight:500}
+.btn.danger{background:transparent;color:var(--bad);border:1px solid var(--line);font-weight:500}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.actions .btn{flex:1 1 auto}
+.hint{font-size:13px;color:var(--mut);margin:0}
+.msg{font-size:14px;padding:9px 11px;border-radius:8px;background:#1d2610;color:var(--acc)}.msg.warn{background:#2a2a10;color:var(--warn)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.stat .n{font:600 26px "Space Grotesk",-apple-system,sans-serif}.stat .l{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}
+.stat.bad .n{color:var(--bad)}.stat.warn .n{color:var(--warn)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--mut)}
+.chips button.on{border-color:var(--acc);color:var(--acc)}
+.job{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center}
+.job.late{border-left:3px solid var(--bad)}.job.soon{border-left:3px solid var(--warn)}
+.job .p{font-weight:600;font-size:16px}.job .s{font-size:13px;color:var(--mut)}
+.job .d{font-size:13px;font-variant-numeric:tabular-nums}
+.tag{font-size:11px;border-radius:4px;padding:2px 6px;margin-left:4px}
+.tag.late{background:var(--bad);color:#0A0A0A}.tag.soon{background:var(--warn);color:#0A0A0A}.tag.na{border:1px solid var(--line);color:var(--mut)}.tag.ok{border:1px solid var(--acc);color:var(--acc)}
+.job .q{grid-row:1/3;grid-column:2;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.job .q button{background:transparent;border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:13px}
+.list{display:flex;flex-direction:column;gap:8px}
+dialog{background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:14px;padding:16px;width:min(520px,94vw);max-height:90vh}
+dialog::backdrop{background:rgba(0,0,0,.65)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--mut);display:inline-block;margin-left:8px}.dot.ok{background:var(--acc)}.dot.err{background:var(--warn)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><b>G3</b> Lab<span class="dot" id="dot" title=""></span></h1>
+    <div class="tabs" role="tablist">
+      <button id="tab-lista" role="tab" aria-selected="true">Trabajos</button>
+      <button id="tab-nuevo" role="tab" aria-selected="false">Nuevo</button>
+      <button id="tab-ajustes" role="tab" aria-selected="false">Ajustes</button>
+    </div>
+  </header>
+  <div id="status" class="msg" hidden></div>
+
+  <section id="v-lista" style="display:flex;flex-direction:column;gap:12px">
+    <div class="stats" id="stats"></div>
+    <div class="chips" id="chips">
+      <button data-f="act" class="on">Sin entregar</button><button data-f="ent">Entregados</button><button data-f="all">Todos</button>
+    </div>
+    <input id="q" type="search" placeholder="Buscar paciente, odontólogo o trabajo" autocomplete="off">
+    <div class="list" id="list"></div>
+  </section>
+
+  <section id="v-nuevo" class="card" hidden>
+    <h2>Dictado</h2>
+    <textarea id="dictado" placeholder="Ej: Lucas Miranda, doctora Peña, encerado diagnóstico, entrega el viernes, precio 70000"></textarea>
+    <p class="hint">Tocá el campo y usá el micrófono del teclado. Decí en orden: paciente, odontólogo, trabajo, y después la entrega y el precio. Separá con comas.</p>
+    <button class="btn ghost" id="btn-interp">Interpretar dictado</button>
+    <h2>Trabajo</h2>
+    <label>Paciente<input id="n-paciente" autocomplete="off"></label>
+    <label>Odontólogo<input id="n-cliente" list="dl-cli" autocomplete="off"></label>
+    <label>Trabajo<input id="n-trabajo" list="dl-trab" autocomplete="off"></label>
+    <div class="row">
+      <label>Fecha de entrega<input id="n-entrega" type="date"></label>
+      <label>Precio<input id="n-precio" type="number" inputmode="numeric" placeholder="Opcional"></label>
+    </div>
+    <label>Notas / indicaciones<input id="n-notas" autocomplete="off"></label>
+    <div class="actions"><button class="btn" id="btn-guardar">Guardar trabajo</button><button class="btn ghost" id="btn-limpiar">Limpiar</button></div>
+  </section>
+
+  <section id="v-ajustes" class="card" hidden>
+    <h2>Sincronización</h2>
+    <p class="hint">Con esto G3 Lab del celular, G3 Lab de la PC y Registro de Trabajos comparten los mismos datos. Se carga una sola vez en cada dispositivo.</p>
+    <label>Repositorio de datos<input id="a-repo" placeholder="gonrodriguezorsero-86/g3-datos" autocapitalize="off" autocomplete="off"></label>
+    <label>Clave de acceso<input id="a-token" type="password" autocomplete="off"></label>
+    <button class="btn" id="btn-sync">Guardar y sincronizar</button>
+    <p class="hint" id="a-estado"></p>
+    <h2>Respaldo</h2>
+    <div class="actions"><button class="btn ghost" id="btn-export">Descargar respaldo</button></div>
+  </section>
+</div>
+
+<dialog id="dlg"><form method="dialog" style="display:flex;flex-direction:column;gap:10px" id="ef">
+  <h2>Editar trabajo</h2>
+  <label>Paciente<input name="paciente" required autocomplete="off"></label>
+  <label>Odontólogo<input name="cliente" list="dl-cli" autocomplete="off"></label>
+  <label>Trabajo<input name="trabajo" list="dl-trab" autocomplete="off"></label>
+  <div class="row">
+    <label>Entrega<input name="entrega" type="date"></label>
+    <label>Estado<select name="estado"></select></label>
+  </div>
+  <label>Precio<input name="precio" type="number" inputmode="numeric"></label>
+  <label>Notas<textarea name="notas" rows="3" style="min-height:60px"></textarea></label>
+  <p class="hint" id="e-info"></p>
+  <div class="actions"><button class="btn" value="ok">Guardar</button><button type="button" class="btn ghost" id="e-cancel">Cancelar</button></div>
+  <button type="button" class="btn danger" id="e-borrar">Borrar trabajo</button>
+</form></dialog>
+<datalist id="dl-cli"></datalist><datalist id="dl-trab"></datalist>
+
+<script>
+/* Datos compartidos: copia local + sincronización con un repositorio privado de GitHub */
+const G3Sync = (function(){
+  const CK="g3_sync";
+  const lsGet=(k,d)=>{ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } };
+  const lsSet=(k,v)=>{ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} };
+  let creds=lsGet(CK,{repo:"",token:""});
+  const stores=[]; const listeners=[];
+  let estado={ok:false,msg:"Sin configurar",cuando:0};
+  const setEstado=(ok,msg)=>{ estado={ok,msg,cuando:Date.now()}; listeners.forEach(f=>{ try{f(estado);}catch(e){} }); };
+  const enc=s=>{ const b=new TextEncoder().encode(s); let o=""; for(let i=0;i<b.length;i+=0x8000) o+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000)); return btoa(o); };
+  const dec=s=>{ const bin=atob(String(s).replace(/\s/g,"")); const b=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) b[i]=bin.charCodeAt(i); return new TextDecoder().decode(b); };
+  const headers=()=>({Authorization:"Bearer "+creds.token,Accept:"application/vnd.github+json"});
+  const url=f=>"https://api.github.com/repos/"+creds.repo+"/contents/"+f;
+  async function ghGet(f){
+    const r=await fetch(url(f),{headers:headers(),cache:"no-store"});
+    if(r.status===404) return null;
+    if(r.status===401||r.status===403) throw new Error("La clave no es válida o no tiene permiso sobre el repositorio.");
+    if(!r.ok) throw new Error("GitHub respondió "+r.status);
+    const j=await r.json(); const t=dec(j.content||"");
+    return {sha:j.sha,obj:t.trim()?JSON.parse(t):{}};
+  }
+  async function ghPut(f,obj,sha){
+    const body={message:"sync",content:enc(JSON.stringify(obj))}; if(sha) body.sha=sha;
+    const r=await fetch(url(f),{method:"PUT",headers:Object.assign({"Content-Type":"application/json"},headers()),body:JSON.stringify(body)});
+    if(r.status===409||r.status===422) return false;
+    if(r.status===404) throw new Error("No encuentro el repositorio "+creds.repo+". Revisá el nombre y el permiso de la clave.");
+    if(!r.ok) throw new Error("GitHub respondió "+r.status);
+    return true;
+  }
+  function Store(file,key){
+    const S=lsGet(key,{items:{},cfg:null,cfgM:0}); if(!S.items) S.items={};
+    const subs=[];
+    const emit=()=>{ lsSet(key,S); subs.forEach(f=>{ try{f();}catch(e){} }); };
+    const st={
+      file,
+      all:()=>Object.values(S.items).filter(x=>!x._del),
+      get:id=>{ const x=S.items[id]; return x&&!x._del?x:null; },
+      put(id,data){ S.items[id]=Object.assign({},data,{id,_m:Date.now()}); delete S.items[id]._del; emit(); kick(); },
+      patch(id,data){ const x=st.get(id); if(!x){ const e=new Error("not_found"); e.code="not_found"; throw e; } S.items[id]=Object.assign({},x,data,{id,_m:Date.now()}); emit(); kick(); },
+      del(id){ S.items[id]={id,_del:true,_m:Date.now()}; emit(); kick(); },
+      cfg:()=>S.cfg, cfgM:()=>S.cfgM||0,
+      setCfg(c){ S.cfg=c; S.cfgM=Date.now(); emit(); kick(); },
+      onChange(f){ subs.push(f); },
+      exportar:()=>JSON.parse(JSON.stringify(S)),
+      importar(o){ Object.keys((o&&o.items)||{}).forEach(id=>{ const r=o.items[id], l=S.items[id]; if(!l||(r._m||0)>(l._m||0)) S.items[id]=r; }); if(o&&o.cfg&&(o.cfgM||0)>(S.cfgM||0)){ S.cfg=o.cfg; S.cfgM=o.cfgM; } emit(); kick(); },
+      async sync(){
+        for(let n=0;n<3;n++){
+          const rem=await ghGet(file); let cambio=false, subir=!rem;
+          if(rem){
+            const ri=rem.obj.items||{};
+            Object.keys(ri).forEach(id=>{ const l=S.items[id]; if(!l||(ri[id]._m||0)>(l._m||0)){ S.items[id]=ri[id]; cambio=true; } });
+            Object.keys(S.items).forEach(id=>{ if(!ri[id]||(S.items[id]._m||0)>(ri[id]._m||0)) subir=true; });
+            if((rem.obj.cfgM||0)>(S.cfgM||0)){ S.cfg=rem.obj.cfg; S.cfgM=rem.obj.cfgM; cambio=true; }
+            else if((S.cfgM||0)>(rem.obj.cfgM||0)) subir=true;
+          }
+          if(cambio) emit();
+          if(!subir) return;
+          if(await ghPut(file,{v:1,items:S.items,cfg:S.cfg,cfgM:S.cfgM||0},rem&&rem.sha)) return;
+        }
+        throw new Error("No pude subir los cambios; se reintenta solo.");
+      }
+    };
+    stores.push(st); return st;
+  }
+  let busy=false, again=false, timer=null, despues=[];
+  async function syncAll(){
+    if(!creds.repo||!creds.token){ setEstado(false,"Sin configurar: los datos quedan solo en este dispositivo."); return false; }
+    if(busy){ again=true; return false; }
+    busy=true;
+    try{
+      for(const s of stores) await s.sync();
+      for(const f of despues){ try{ if(f()) again=true; }catch(e){} }
+      setEstado(true,"Sincronizado "+new Date().toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"}));
+    }catch(e){ setEstado(false, navigator.onLine===false ? "Sin conexión: se sincroniza cuando vuelva internet." : (e.message||"No se pudo sincronizar.")); }
+    busy=false;
+    if(again){ again=false; kick(); }
+    return estado.ok;
+  }
+  function kick(){ clearTimeout(timer); timer=setTimeout(syncAll,1200); }
+  setInterval(syncAll,60000);
+  window.addEventListener("online",syncAll);
+  document.addEventListener("visibilitychange",()=>{ if(!document.hidden) syncAll(); });
+  return {
+    Store, syncAll, kick,
+    creds:()=>Object.assign({},creds),
+    setCreds(repo,token){ creds={repo:String(repo||"").trim().replace(/^https?:\/\/github\.com\//,"").replace(/\.git$/,"").replace(/\/$/,""),token:String(token||"").trim()}; lsSet(CK,creds); return syncAll(); },
+    estado:()=>estado, onEstado(f){ listeners.push(f); }, despuesDeSync(f){ despues.push(f); }
+  };
+})();
+
+(function(){
+const L=G3Sync.Store("lab.json","g3lab_store");
+const ESTADOS=["Pendiente","En diseño","Listo","Entregado"];
+const TRABAJOS=["Corona","Carilla","Incrustación","Encerado diagnóstico","Mock-up","Placa miorrelajante","Guía quirúrgica","Alineadores","Modelo impreso","Puente","Corona sobre implante","Provisorio"];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const iso=d=>{ const x=new Date(d); x.setMinutes(x.getMinutes()-x.getTimezoneOffset()); return x.toISOString().slice(0,10); };
+const today=()=>iso(new Date());
+const addDays=n=>{ const d=new Date(); d.setDate(d.getDate()+n); return iso(d); };
+const fdate=d=>d?d.split("-").reverse().slice(0,2).join("/"):"sin fecha";
+const money=n=>"$"+Math.round(n||0).toLocaleString("es-AR");
+const cap=s=>String(s||"").trim().replace(/\s+/g," ").replace(/(^|\s)(\S)/g,(m,a,b)=>a+b.toUpperCase());
+const newId=()=>{ const d=new Date(), p=n=>String(n).padStart(2,"0"); return ""+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds())+Math.floor(100+Math.random()*900); };
+let filtro="act", editId=null;
+function status(t,warn){ const s=$("status"); if(!t){ s.hidden=true; return; } s.textContent=t; s.className="msg"+(warn?" warn":""); s.hidden=false; clearTimeout(status.t); status.t=setTimeout(()=>s.hidden=true,warn?7000:3500); }
+function urg(j){ if(j.estado==="Entregado") return ""; if(!j.entrega) return "na"; if(j.entrega<today()) return "late"; if(j.entrega<=addDays(1)) return "soon"; return ""; }
+
+const views=["lista","nuevo","ajustes"];
+function show(v){ views.forEach(x=>{ $("v-"+x).hidden=x!==v; $("tab-"+x).setAttribute("aria-selected",x===v); }); if(v==="lista") render(); }
+views.forEach(v=>$("tab-"+v).addEventListener("click",()=>show(v)));
+
+function render(){
+  const jobs=L.all(), act=jobs.filter(j=>j.estado!=="Entregado");
+  const late=act.filter(j=>urg(j)==="late").length, soon=act.filter(j=>urg(j)==="soon").length;
+  $("stats").innerHTML=[["bad",late,"Atrasados"],["warn",soon,"Hoy o mañana"],["",act.length,"Sin entregar"]].map(s=>`<div class="stat ${s[1]?s[0]:""}"><div class="n">${s[1]}</div><div class="l">${s[2]}</div></div>`).join("");
+  $("dl-cli").innerHTML=[...new Set(jobs.map(j=>j.cliente).filter(c=>c&&c!=="Sin asignar"))].sort().map(c=>`<option value="${esc(c)}">`).join("");
+  $("dl-trab").innerHTML=[...new Set(TRABAJOS.concat(jobs.map(j=>j.trabajo).filter(Boolean)))].map(c=>`<option value="${esc(c)}">`).join("");
+  const q=$("q").value.trim().toLowerCase();
+  let list=jobs.filter(j=>filtro==="all"||(filtro==="ent")===(j.estado==="Entregado"));
+  if(q) list=list.filter(j=>[j.paciente,j.cliente,j.trabajo,j.notas].join(" ").toLowerCase().includes(q));
+  list.sort((a,b)=>filtro==="ent"?(b.entregado||"").localeCompare(a.entregado||""):(a.entrega||"9999").localeCompare(b.entrega||"9999"));
+  const tt={late:"atrasado",soon:"pronto",na:"sin fecha"};
+  $("list").innerHTML=list.length?list.map(j=>{ const u=urg(j); return `<div class="job ${u}" data-id="${esc(j.id)}">
+    <div class="p">${esc(j.paciente)}</div>
+    <div class="q">${j.estado==="Entregado"?'<span class="tag ok">entregado</span>':'<button data-a="ent">Entregar</button>'}</div>
+    <div class="s">${esc(!j.cliente||j.cliente==="Sin asignar"?"Sin odontólogo":j.cliente)} · ${esc(j.trabajo||"Trabajo")}<br><span class="d">${j.estado==="Entregado"?"Entregado "+fdate(j.entregado):esc(j.estado)+" · entrega "+fdate(j.entrega)}</span>${u&&u!=="na"?`<span class="tag ${u}">${tt[u]}</span>`:""}${+j.precio>0?` · ${money(j.precio)}`:""}</div>
+  </div>`; }).join(""):'<p class="hint">No hay trabajos en esta vista.</p>';
+}
+$("chips").addEventListener("click",e=>{ if(!e.target.dataset.f) return; filtro=e.target.dataset.f; [...$("chips").children].forEach(b=>b.classList.toggle("on",b===e.target)); render(); });
+$("q").addEventListener("input",render);
+$("list").addEventListener("click",e=>{
+  const c=e.target.closest(".job"); if(!c) return; const j=L.get(c.dataset.id); if(!j) return;
+  if(e.target.dataset.a==="ent"){ L.patch(j.id,{estado:"Entregado",entregado:today()}); status("Entregado: "+j.paciente+(+j.precio>0?". Pasa a Registro de Trabajos para cobrar.":".")); return; }
+  abrir(j);
+});
+
+/* dictado */
+const DIAS=["domingo","lunes","martes","miercoles","jueves","viernes","sabado"];
+const MESES=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const norm=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+function parseFecha(txt){
+  const t=norm(txt); let m;
+  if(/pasado manana/.test(t)) return addDays(2);
+  if(/\bmanana\b/.test(t)) return addDays(1);
+  if(/\bhoy\b/.test(t)) return today();
+  const di=DIAS.findIndex(d=>new RegExp("\\b"+d+"\\b").test(t));
+  if(di>=0){ let n=(di-new Date().getDay()+7)%7; if(n===0) n=7; return addDays(n); }
+  const y=new Date().getFullYear();
+  const mk=(d,mo)=>{ let dt=new Date(y,mo,d,12); if(iso(dt)<today()) dt=new Date(y+1,mo,d,12); return iso(dt); };
+  if((m=t.match(/\b(\d{1,2})\s*[\/\-]\s*(\d{1,2})\b/))) return mk(+m[1],+m[2]-1);
+  if((m=t.match(/\b(\d{1,2})\s+de\s+([a-z]+)/))){ const mo=MESES.indexOf(m[2]); if(mo>=0) return mk(+m[1],mo); }
+  if((m=t.match(/\bel\s+(\d{1,2})\b/))){ const d=+m[1]; let dt=new Date(y,new Date().getMonth(),d,12); if(iso(dt)<today()) dt.setMonth(dt.getMonth()+1); return iso(dt); }
+  return "";
+}
+function interpretar(txt){
+  const r={paciente:"",cliente:"",trabajo:"",entrega:"",precio:"",notas:""}; const libres=[];
+  txt.split(/[,;\n]+/).map(s=>s.trim()).filter(Boolean).forEach(p=>{
+    const n=norm(p);
+    if(/\b(precio|vale|cuesta|pesos)\b|\$/.test(n)){ const m=n.replace(/[.\s](?=\d{3}\b)/g,"").match(/\d+/); if(m){ r.precio=m[0]*(/\bmil\b/.test(n)&&m[0]<1000?1000:1); return; } }
+    if(/\b(entrega|entregar|para el|para)\b/.test(n)||/^(el\s+)?\d{1,2}\s*([\/\-]|de\s)/.test(n)||/^(hoy|manana|pasado manana)$/.test(n)||(DIAS.some(d=>n===d||n==="el "+d))){ const f=parseFecha(p); if(f){ r.entrega=f; return; } }
+    libres.push(p.replace(/\.$/,""));
+  });
+  r.paciente=cap(libres[0]||"");
+  r.cliente=cap((libres[1]||"").replace(/^(del?|de la|para)\s+/i,"").replace(/^doctora\b/i,"Dra.").replace(/^doctor\b/i,"Dr."));
+  r.trabajo=(libres[2]||"").replace(/^./,c=>c.toUpperCase());
+  r.notas=libres.slice(3).join(", ");
+  return r;
+}
+$("btn-interp").addEventListener("click",()=>{
+  const t=$("dictado").value.trim(); if(!t){ status("Dictá o escribí el trabajo primero.",true); return; }
+  const r=interpretar(t); ["paciente","cliente","trabajo","entrega","precio","notas"].forEach(k=>$("n-"+k).value=r[k]);
+  status("Revisá los datos y tocá Guardar.");
+});
+function limpiar(){ ["dictado","n-paciente","n-cliente","n-trabajo","n-entrega","n-precio","n-notas"].forEach(id=>$(id).value=""); }
+$("btn-limpiar").addEventListener("click",limpiar);
+$("btn-guardar").addEventListener("click",()=>{
+  const pac=cap($("n-paciente").value); if(!pac){ status("Falta el nombre del paciente.",true); return; }
+  L.put(newId(),{cliente:$("n-cliente").value.trim()||"Sin asignar",paciente:pac,trabajo:$("n-trabajo").value.trim()||"Trabajo",ingreso:today(),entrega:$("n-entrega").value,estado:"Pendiente",entregado:"",notas:$("n-notas").value.trim(),origen:"",carpeta:"",precio:+$("n-precio").value||0,reg:""});
+  limpiar(); show("lista"); status("Guardado: "+pac+". Cuando bajes el escaneo en la PC se archiva en su carpeta.");
+});
+
+/* edición */
+const ef=$("ef");
+ef.estado.innerHTML=ESTADOS.map(e=>`<option>${e}</option>`).join("");
+function abrir(j){ editId=j.id; ef.paciente.value=j.paciente||""; ef.cliente.value=j.cliente==="Sin asignar"?"":(j.cliente||""); ef.trabajo.value=j.trabajo||""; ef.entrega.value=j.entrega||""; ef.estado.value=j.estado||"Pendiente"; ef.precio.value=+j.precio||""; ef.notas.value=j.notas||"";
+  $("e-info").textContent=(j.carpeta?"Archivos guardados en la PC: "+j.carpeta+". ":"Todavía sin archivos en la PC. ")+(j.reg?"Ya está en Registro de Trabajos.":"");
+  const b=$("e-borrar"); b.dataset.c=""; b.textContent="Borrar trabajo"; $("dlg").showModal(); }
+$("e-cancel").addEventListener("click",()=>$("dlg").close());
+$("e-borrar").addEventListener("click",()=>{ const b=$("e-borrar"); if(!b.dataset.c){ b.dataset.c="1"; b.textContent="Tocá otra vez para borrarlo"; return; } L.del(editId); $("dlg").close(); status("Trabajo borrado."); });
+ef.addEventListener("submit",e=>{ e.preventDefault(); const j=L.get(editId); if(!j) return;
+  const est=ef.estado.value;
+  L.patch(editId,{paciente:cap(ef.paciente.value)||j.paciente,cliente:ef.cliente.value.trim()||"Sin asignar",trabajo:ef.trabajo.value.trim()||"Trabajo",entrega:ef.entrega.value,estado:est,entregado:est==="Entregado"?(j.entregado||today()):"",precio:+ef.precio.value||0,notas:ef.notas.value.trim()});
+  $("dlg").close(); status("Guardado."); });
+
+/* ajustes */
+const c0=G3Sync.creds(); $("a-repo").value=c0.repo; $("a-token").value=c0.token;
+function pintaEstado(e){ $("a-estado").textContent=e.msg; const d=$("dot"); d.className="dot"+(e.ok?" ok":(G3Sync.creds().token?" err":"")); d.title=e.msg; }
+G3Sync.onEstado(pintaEstado); pintaEstado(G3Sync.estado());
+$("btn-sync").addEventListener("click",async()=>{ $("a-estado").textContent="Sincronizando…"; const ok=await G3Sync.setCreds($("a-repo").value,$("a-token").value); status(ok?"Sincronización activada.":G3Sync.estado().msg,!ok); });
+$("btn-export").addEventListener("click",()=>{ const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([JSON.stringify({lab:L.exportar()},null,1)],{type:"application/json"})); a.download="g3lab-respaldo-"+today()+".json"; a.click(); });
+
+L.onChange(render); render(); G3Sync.syncAll();
+if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+})();
+</script>
+</body>
+</html>
