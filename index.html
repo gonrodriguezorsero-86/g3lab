@@ -393,7 +393,7 @@ const precios=()=>{ const c=R.cfg(); return (c&&Array.isArray(c.lista)&&c.lista.
 const normT=s=>norm(String(s||"")).replace(/\s+/g," ").trim();
 const precioDe=t=>precios().find(x=>normT(x.n)===normT(t))||precios().find(x=>normT(t).startsWith(normT(x.n)))||null;
 const piezasDe=s=>[...new Set((String(s||"").match(/\b[1-4][1-8]\b/g)||[]))];
-const archivosUrl=p=>"https://drive.google.com/drive/search?q="+encodeURIComponent('"'+p+'"');
+const archivosUrl=p=>"https://drive.google.com/drive/search?q="+encodeURIComponent(p);
 const saldo=c=>Math.max((+c.total||0)-(+c.cobrado||0),0);
 
 /* dialogo para cargar un cobro */
