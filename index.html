@@ -54,6 +54,25 @@ label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mut)
 .list{display:flex;flex-direction:column;gap:8px}
 dialog{background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:14px;padding:16px;width:min(520px,94vw);max-height:90vh}
 dialog::backdrop{background:rgba(0,0,0,.65)}
+.tabs{flex-wrap:wrap}
+.stat .n.sm{font-size:18px;font-variant-numeric:tabular-nums}
+.link{background:none;border:0;color:var(--acc);padding:0;font-size:13px;cursor:pointer;text-decoration:none}
+.tag.pend{border:1px solid var(--warn);color:var(--warn);background:transparent}
+button.tag{cursor:pointer;font:inherit;font-size:11px;background:transparent}
+.job .q a{font-size:12px}
+.cg{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.cg-h{width:100%;display:grid;grid-template-columns:1fr auto auto 14px;gap:10px;align-items:center;background:none;border:0;padding:12px 14px;text-align:left;cursor:pointer;min-height:48px}
+.cg-h .p{font-weight:600;font-size:16px}.cg-h .chev{color:var(--mut)}
+.d{font-variant-numeric:tabular-nums;white-space:nowrap}
+.debe{color:var(--warn);font-size:13px;font-weight:600;white-space:nowrap}.okc{color:var(--acc);font-size:13px;white-space:nowrap}
+.ci{display:grid;grid-template-columns:1fr auto;gap:10px;padding:10px 14px;border-top:1px solid var(--line);cursor:pointer}
+.ci .p2{font-weight:500}.ci .s{font-size:12px;color:var(--mut)}
+.ci .cr{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.cf{padding:8px 14px 12px;border-top:1px dashed var(--line)}
+.pr{display:grid;grid-template-columns:1fr 110px auto auto;gap:6px;align-items:center}
+.ck{flex-direction:row;align-items:center;gap:4px;white-space:nowrap}.ck input{width:auto}
+.tot{display:flex;justify-content:space-between;align-items:baseline;font-variant-numeric:tabular-nums}.tot b{font:600 22px "Space Grotesk",-apple-system,sans-serif}
+@media(max-width:420px){.pr{grid-template-columns:1fr 90px auto}.pr .ck{grid-column:1}}
 .dot{width:9px;height:9px;border-radius:50%;background:var(--mut);display:inline-block;margin-left:8px}.dot.ok{background:var(--acc)}.dot.err{background:var(--warn)}
 </style>
 </head>
@@ -64,6 +83,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     <div class="tabs" role="tablist">
       <button id="tab-lista" role="tab" aria-selected="true">Trabajos</button>
       <button id="tab-nuevo" role="tab" aria-selected="false">Nuevo</button>
+      <button id="tab-cobros" role="tab" aria-selected="false">Cobros</button>
       <button id="tab-ajustes" role="tab" aria-selected="false">Ajustes</button>
     </div>
   </header>
@@ -95,9 +115,30 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     <div class="actions"><button class="btn" id="btn-guardar">Guardar trabajo</button><button class="btn ghost" id="btn-limpiar">Limpiar</button></div>
   </section>
 
+  <section id="v-cobros" style="display:flex;flex-direction:column;gap:12px" hidden>
+    <div class="row">
+      <label>Mes<input type="month" id="c-mes"></label>
+      <label>Odontólogo<select id="c-cli"></select></label>
+    </div>
+    <div class="stats" id="c-stats"></div>
+    <div id="c-sin"></div>
+    <div class="row">
+      <input id="c-q" type="search" placeholder="Buscar paciente o trabajo" autocomplete="off" aria-label="Buscar">
+      <label class="ck" style="color:var(--txt);font-size:14px"><input type="checkbox" id="c-saldo"> Solo con saldo</label>
+    </div>
+    <div class="list" id="c-list"></div>
+    <div class="actions"><button class="btn" id="c-copiar">Copiar resumen</button><button class="btn ghost" id="c-csv">Descargar CSV</button><button class="btn ghost" id="c-nuevo">+ Cobro manual</button></div>
+    <textarea id="c-txt" hidden readonly></textarea>
+    <details class="card">
+      <summary style="cursor:pointer"><h2 style="display:inline">Lista de precios</h2></summary>
+      <div id="p-list" style="display:flex;flex-direction:column;gap:6px"></div>
+      <div class="actions"><button class="btn ghost" id="p-add">+ Agregar trabajo</button><button class="btn" id="p-guardar">Guardar precios</button></div>
+    </details>
+  </section>
+
   <section id="v-ajustes" class="card" hidden>
     <h2>Sincronización</h2>
-    <p class="hint">Con esto G3 Lab del celular, G3 Lab de la PC y Registro de Trabajos comparten los mismos datos. Se carga una sola vez en cada dispositivo.</p>
+    <p class="hint">Con esto G3 Lab del celular y de la PC comparten los mismos trabajos y cobros. Se carga una sola vez en cada dispositivo.</p>
     <label>Repositorio de datos<input id="a-repo" placeholder="gonrodriguezorsero-86/g3-datos" autocapitalize="off" autocomplete="off"></label>
     <label>Clave de acceso<input id="a-token" type="password" autocomplete="off"></label>
     <button class="btn" id="btn-sync">Guardar y sincronizar</button>
@@ -121,6 +162,25 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   <p class="hint" id="e-info"></p>
   <div class="actions"><button class="btn" value="ok">Guardar</button><button type="button" class="btn ghost" id="e-cancel">Cancelar</button></div>
   <button type="button" class="btn danger" id="e-borrar">Borrar trabajo</button>
+</form></dialog>
+<dialog id="dlc"><form style="display:flex;flex-direction:column;gap:10px" id="dc">
+  <h2 id="dc-tit">Cargar para cobrar</h2>
+  <label>Paciente<input name="paciente" autocomplete="off"></label>
+  <label>Odontólogo<input name="cliente" list="dl-cli" autocomplete="off"></label>
+  <label>Trabajo<input name="trabajo" list="dl-trab" autocomplete="off"></label>
+  <div class="row">
+    <label>Piezas<input name="piezas" placeholder="Ej: 36 37" autocomplete="off" inputmode="numeric"></label>
+    <label>Fecha<input name="fecha" type="date"></label>
+  </div>
+  <div class="row">
+    <label>Precio por pieza / trabajo<input name="unit" type="number" inputmode="numeric"></label>
+    <label>Cantidad<input name="cant" type="number" readonly tabindex="-1"></label>
+  </div>
+  <div class="tot"><span class="hint">Total</span><b id="c-total">$0</b></div>
+  <label>Ya cobrado<input name="cobrado" type="number" inputmode="numeric" placeholder="0"></label>
+  <label>Notas<input name="notas" autocomplete="off"></label>
+  <div class="actions"><button class="btn" type="submit">Guardar</button><button type="button" class="btn ghost" id="dc-cancel">Ahora no</button></div>
+  <button type="button" class="btn danger" id="dc-borrar" hidden>Borrar cobro</button>
 </form></dialog>
 <datalist id="dl-cli"></datalist><datalist id="dl-trab"></datalist>
 
@@ -232,8 +292,8 @@ let filtro="act", editId=null;
 function status(t,warn){ const s=$("status"); if(!t){ s.hidden=true; return; } s.textContent=t; s.className="msg"+(warn?" warn":""); s.hidden=false; clearTimeout(status.t); status.t=setTimeout(()=>s.hidden=true,warn?7000:3500); }
 function urg(j){ if(j.estado==="Entregado") return ""; if(!j.entrega) return "na"; if(j.entrega<today()) return "late"; if(j.entrega<=addDays(1)) return "soon"; return ""; }
 
-const views=["lista","nuevo","ajustes"];
-function show(v){ views.forEach(x=>{ $("v-"+x).hidden=x!==v; $("tab-"+x).setAttribute("aria-selected",x===v); }); if(v==="lista") render(); }
+const views=["lista","nuevo","cobros","ajustes"];
+function show(v){ views.forEach(x=>{ $("v-"+x).hidden=x!==v; $("tab-"+x).setAttribute("aria-selected",x===v); }); if(v==="lista") render(); if(v==="cobros"){ renderCobros(); renderPrecios(); } }
 views.forEach(v=>$("tab-"+v).addEventListener("click",()=>show(v)));
 
 function render(){
@@ -241,7 +301,7 @@ function render(){
   const late=act.filter(j=>urg(j)==="late").length, soon=act.filter(j=>urg(j)==="soon").length;
   $("stats").innerHTML=[["bad",late,"Atrasados"],["warn",soon,"Hoy o mañana"],["",act.length,"Sin entregar"]].map(s=>`<div class="stat ${s[1]?s[0]:""}"><div class="n">${s[1]}</div><div class="l">${s[2]}</div></div>`).join("");
   $("dl-cli").innerHTML=[...new Set(jobs.map(j=>j.cliente).filter(c=>c&&c!=="Sin asignar"))].sort().map(c=>`<option value="${esc(c)}">`).join("");
-  $("dl-trab").innerHTML=[...new Set(TRABAJOS.concat(jobs.map(j=>j.trabajo).filter(Boolean)))].map(c=>`<option value="${esc(c)}">`).join("");
+  $("dl-trab").innerHTML=[...new Set(precios().map(t=>t.n).concat(TRABAJOS,jobs.map(j=>j.trabajo).filter(Boolean)))].map(c=>`<option value="${esc(c)}">`).join("");
   const q=$("q").value.trim().toLowerCase();
   let list=jobs.filter(j=>filtro==="all"||(filtro==="ent")===(j.estado==="Entregado"));
   if(q) list=list.filter(j=>[j.paciente,j.cliente,j.trabajo,j.notas].join(" ").toLowerCase().includes(q));
@@ -249,7 +309,7 @@ function render(){
   const tt={late:"atrasado",soon:"pronto",na:"sin fecha"};
   $("list").innerHTML=list.length?list.map(j=>{ const u=urg(j); return `<div class="job ${u}" data-id="${esc(j.id)}">
     <div class="p">${esc(j.paciente)}</div>
-    <div class="q">${j.estado==="Entregado"?'<span class="tag ok">entregado</span>':'<button data-a="ent">Entregar</button>'}</div>
+    <div class="q">${j.estado==="Entregado"?(j.reg&&R.get(j.reg)?(saldo(R.get(j.reg))>0?'<span class="tag pend">a cobrar</span>':'<span class="tag ok">cobrado</span>'):'<button data-a="cob">Cobrar</button>'):'<button data-a="ent">Entregar</button>'}<a class="link" href="${archivosUrl(j.paciente)}" target="_blank" rel="noopener">Archivos</a></div>
     <div class="s">${esc(!j.cliente||j.cliente==="Sin asignar"?"Sin odontólogo":j.cliente)} · ${esc(j.trabajo||"Trabajo")}<br><span class="d">${j.estado==="Entregado"?"Entregado "+fdate(j.entregado):esc(j.estado)+" · entrega "+fdate(j.entrega)}</span>${u&&u!=="na"?`<span class="tag ${u}">${tt[u]}</span>`:""}${+j.precio>0?` · ${money(j.precio)}`:""}</div>
   </div>`; }).join(""):'<p class="hint">No hay trabajos en esta vista.</p>';
 }
@@ -257,7 +317,9 @@ $("chips").addEventListener("click",e=>{ if(!e.target.dataset.f) return; filtro=
 $("q").addEventListener("input",render);
 $("list").addEventListener("click",e=>{
   const c=e.target.closest(".job"); if(!c) return; const j=L.get(c.dataset.id); if(!j) return;
-  if(e.target.dataset.a==="ent"){ L.patch(j.id,{estado:"Entregado",entregado:today()}); status("Entregado: "+j.paciente+(+j.precio>0?". Pasa a Registro de Trabajos para cobrar.":".")); return; }
+  if(e.target.closest("a")) return;
+  if(e.target.dataset.a==="ent"){ L.patch(j.id,{estado:"Entregado",entregado:today()}); status("Entregado: "+j.paciente+". Cargalo para cobrar."); abrirCobro(L.get(j.id)); return; }
+  if(e.target.dataset.a==="cob"){ abrirCobro(j); return; }
   abrir(j);
 });
 
@@ -310,7 +372,7 @@ $("btn-guardar").addEventListener("click",()=>{
 const ef=$("ef");
 ef.estado.innerHTML=ESTADOS.map(e=>`<option>${e}</option>`).join("");
 function abrir(j){ editId=j.id; ef.paciente.value=j.paciente||""; ef.cliente.value=j.cliente==="Sin asignar"?"":(j.cliente||""); ef.trabajo.value=j.trabajo||""; ef.entrega.value=j.entrega||""; ef.estado.value=j.estado||"Pendiente"; ef.precio.value=+j.precio||""; ef.notas.value=j.notas||"";
-  $("e-info").textContent=(j.carpeta?"Archivos guardados en la PC: "+j.carpeta+". ":"Todavía sin archivos en la PC. ")+(j.reg?"Ya está en Registro de Trabajos.":"");
+  $("e-info").innerHTML=`<a class="link" href="${archivosUrl(j.paciente)}" target="_blank" rel="noopener">Ver STL y fotos en Google Drive</a>`+(j.reg&&R.get(j.reg)?` · cargado para cobrar (${money(R.get(j.reg).total)})`:(j.estado==="Entregado"?" · todavía sin cargar para cobrar":""));
   const b=$("e-borrar"); b.dataset.c=""; b.textContent="Borrar trabajo"; $("dlg").showModal(); }
 $("e-cancel").addEventListener("click",()=>$("dlg").close());
 $("e-borrar").addEventListener("click",()=>{ const b=$("e-borrar"); if(!b.dataset.c){ b.dataset.c="1"; b.textContent="Tocá otra vez para borrarlo"; return; } L.del(editId); $("dlg").close(); status("Trabajo borrado."); });
@@ -319,12 +381,136 @@ ef.addEventListener("submit",e=>{ e.preventDefault(); const j=L.get(editId); if(
   L.patch(editId,{paciente:cap(ef.paciente.value)||j.paciente,cliente:ef.cliente.value.trim()||"Sin asignar",trabajo:ef.trabajo.value.trim()||"Trabajo",entrega:ef.entrega.value,estado:est,entregado:est==="Entregado"?(j.entregado||today()):"",precio:+ef.precio.value||0,notas:ef.notas.value.trim()});
   $("dlg").close(); status("Guardado."); });
 
+/* cobros: trabajos entregados que se cargan para cobrar (antes Registro de Trabajos) */
+const R=G3Sync.Store("cobros.json","g3cobros_store");
+const PRECIOS0=[
+  {n:"Corona",p:70000,pieza:true},{n:"Corona sobre implante",p:0,pieza:true},{n:"Carilla",p:0,pieza:true},
+  {n:"Incrustación",p:0,pieza:true},{n:"Puente",p:0,pieza:true},{n:"Provisorio",p:0,pieza:true},
+  {n:"Encerado diagnóstico",p:0,pieza:false},{n:"Mock-up",p:0,pieza:false},{n:"Placa miorrelajante",p:0,pieza:false},
+  {n:"Guía quirúrgica",p:0,pieza:false},{n:"Alineadores",p:0,pieza:false},{n:"Modelo impreso",p:0,pieza:false}
+];
+const precios=()=>{ const c=R.cfg(); return (c&&Array.isArray(c.lista)&&c.lista.length)?c.lista:PRECIOS0; };
+const normT=s=>norm(String(s||"")).replace(/\s+/g," ").trim();
+const precioDe=t=>precios().find(x=>normT(x.n)===normT(t))||precios().find(x=>normT(t).startsWith(normT(x.n)))||null;
+const piezasDe=s=>[...new Set((String(s||"").match(/\b[1-4][1-8]\b/g)||[]))];
+const archivosUrl=p=>"https://drive.google.com/drive/search?q="+encodeURIComponent('"'+p+'"');
+const saldo=c=>Math.max((+c.total||0)-(+c.cobrado||0),0);
+
+/* dialogo para cargar un cobro */
+const dc=$("dc"); let cJob=null, cId=null;
+function calcCobro(){
+  const pz=piezasDe(dc.piezas.value), unit=+dc.unit.value||0, p=precioDe(dc.trabajo.value);
+  const cant=(p?p.pieza:pz.length>0)?Math.max(pz.length,1):1;
+  dc.cant.value=cant; $("c-total").textContent=money(unit*cant);
+  return {pz,unit,cant,total:unit*cant};
+}
+function abrirCobro(j,c){
+  cJob=j||null; cId=c?c.id:null;
+  $("dc-tit").textContent=c?"Editar cobro":"Cargar para cobrar";
+  dc.paciente.value=c?c.paciente:(j?j.paciente:""); dc.cliente.value=c?(c.cliente||""):(j&&j.cliente!=="Sin asignar"?j.cliente:"");
+  dc.trabajo.value=c?c.trabajo:(j?j.trabajo:""); dc.piezas.value=c?(c.piezas||""):(j?piezasDe(j.notas).join(" "):"");
+  dc.fecha.value=c?c.fecha:(j&&j.entregado)||today();
+  const p=precioDe(dc.trabajo.value);
+  dc.unit.value=c?c.unit:(j&&+j.precio>0?j.precio:(p?p.p:""));
+  dc.cobrado.value=c&&+c.cobrado>0?c.cobrado:""; dc.notas.value=c?(c.notas||""):"";
+  $("dc-borrar").hidden=!c; $("dc-borrar").dataset.c=""; $("dc-borrar").textContent="Borrar cobro";
+  calcCobro(); $("dlc").showModal();
+}
+dc.trabajo.addEventListener("change",()=>{ const p=precioDe(dc.trabajo.value); if(p&&p.p) dc.unit.value=p.p; calcCobro(); });
+["piezas","unit"].forEach(k=>dc[k].addEventListener("input",calcCobro));
+$("dc-cancel").addEventListener("click",()=>$("dlc").close());
+$("dc-borrar").addEventListener("click",()=>{ const b=$("dc-borrar"); if(!b.dataset.c){ b.dataset.c="1"; b.textContent="Tocá otra vez para borrarlo"; return; }
+  const c=R.get(cId); if(c&&c.jobId&&L.get(c.jobId)) L.patch(c.jobId,{reg:""}); R.del(cId); $("dlc").close(); renderCobros(); status("Cobro borrado."); });
+dc.addEventListener("submit",e=>{ e.preventDefault();
+  const pac=cap(dc.paciente.value); if(!pac){ status("Falta el paciente.",true); return; }
+  const k=calcCobro(); if(!(k.unit>0)){ status("Poné el precio.",true); return; }
+  const prev=cId?R.get(cId):null, cob=Math.min(+dc.cobrado.value||0,k.total);
+  const data={jobId:prev?prev.jobId:(cJob?cJob.id:""),fecha:dc.fecha.value||today(),paciente:pac,cliente:dc.cliente.value.trim()||"Sin asignar",
+    trabajo:dc.trabajo.value.trim()||"Trabajo",piezas:k.pz.join(" "),cant:k.cant,unit:k.unit,total:k.total,cobrado:cob,
+    fechaCobro:cob>0?((prev&&prev.fechaCobro)||today()):"",notas:dc.notas.value.trim()};
+  const id=cId||newId(); R.put(id,data);
+  if(data.jobId&&L.get(data.jobId)) L.patch(data.jobId,{reg:id,precio:k.total});
+  $("dlc").close(); status(`Cargado para cobrar: ${pac}, ${money(k.total)}.`); render(); renderCobros();
+});
+
+/* vista Cobros */
+let cAbiertos=new Set();
+function cobFiltrados(){ const mes=$("c-mes").value, cl=$("c-cli").value;
+  return R.all().filter(c=>(!mes||(c.fecha||"").startsWith(mes))&&(!cl||c.cliente===cl)); }
+function renderCobros(){
+  if($("v-cobros").hidden) return;
+  const todos=R.all(), cls=[...new Set(todos.map(c=>c.cliente))].sort(), sel=$("c-cli"), cur=sel.value;
+  sel.innerHTML='<option value="">Todos</option>'+cls.map(c=>`<option>${esc(c)}</option>`).join(""); sel.value=cls.includes(cur)?cur:"";
+  const L2=cobFiltrados(); const tot=L2.reduce((s,c)=>s+(+c.total||0),0), cob=L2.reduce((s,c)=>s+(+c.cobrado||0),0);
+  $("c-stats").innerHTML=[["",money(tot),"Facturado"],["",money(cob),"Cobrado"],[tot-cob>0?"warn":"",money(tot-cob),"Pendiente"]].map(s=>`<div class="stat ${s[0]}"><div class="n sm">${s[1]}</div><div class="l">${s[2]}</div></div>`).join("");
+  const sinCob=L.all().filter(j=>j.estado==="Entregado"&&!j.reg);
+  $("c-sin").innerHTML=sinCob.length?`<div class="msg warn">${sinCob.length} entregado${sinCob.length>1?"s":""} sin cargar para cobrar: `+sinCob.slice(0,6).map(j=>`<button class="link" data-cj="${esc(j.id)}">${esc(j.paciente)}</button>`).join(", ")+(sinCob.length>6?"…":"")+`</div>`:"";
+  const q=norm($("c-q").value.trim()), solo=$("c-saldo").checked;
+  const g=new Map(); L2.forEach(c=>{ const k=c.cliente||"Sin asignar"; if(!g.has(k)) g.set(k,[]); g.get(k).push(c); });
+  let h="";
+  [...g.entries()].sort((a,b)=>a[0].localeCompare(b[0],"es")).forEach(([cli,items])=>{
+    items=items.filter(c=>!q||norm(c.paciente+" "+c.trabajo).includes(q)).filter(c=>!solo||saldo(c)>0).sort((a,b)=>(a.fecha<b.fecha?-1:1));
+    if(!items.length) return;
+    const t=items.reduce((s,c)=>s+(+c.total||0),0), p=items.reduce((s,c)=>s+saldo(c),0), open=cAbiertos.has(cli)||!!q;
+    h+=`<div class="cg"><button class="cg-h" data-g="${esc(cli)}"><span class="p">${esc(cli)}</span><span class="d">${money(t)}</span><span class="${p>0?"debe":"okc"}">${p>0?"debe "+money(p):"pagado"}</span><span class="chev">${open?"▾":"▸"}</span></button>`;
+    if(open){
+      h+=items.map(c=>{ const s=saldo(c), est=s<=0?"pagado":(+c.cobrado>0?"pagó "+money(c.cobrado):"pendiente");
+        return `<div class="ci" data-c="${esc(c.id)}"><div><div class="p2">${esc(c.paciente)}</div><div class="s">${fdate(c.fecha)} · ${esc(c.trabajo)}${c.piezas?" · "+esc(c.piezas):""}${c.cant>1?` · ${c.cant} × ${money(c.unit)}`:""}</div></div>
+          <div class="cr"><span class="d">${money(c.total)}</span><button class="tag ${s<=0?"ok":"pend"}" data-pago="${esc(c.id)}">${est}</button></div></div>`; }).join("");
+      if(p>0) h+=`<div class="cf"><button class="link" data-todo="${esc(cli)}">${esc(cli)} pagó todo (${money(p)})</button></div>`;
+    }
+    h+=`</div>`;
+  });
+  $("c-list").innerHTML=h||`<p class="hint">No hay cobros en este mes. Cuando entregás un trabajo, cargalo desde Trabajos.</p>`;
+}
+$("c-list").addEventListener("click",e=>{
+  const g=e.target.closest("[data-g]"); if(g){ const k=g.dataset.g; cAbiertos.has(k)?cAbiertos.delete(k):cAbiertos.add(k); renderCobros(); return; }
+  const pg=e.target.closest("[data-pago]"); if(pg){ const c=R.get(pg.dataset.pago); if(!c) return;
+    R.patch(c.id, saldo(c)<=0?{cobrado:0,fechaCobro:""}:{cobrado:+c.total||0,fechaCobro:today()}); renderCobros(); return; }
+  const td=e.target.closest("[data-todo]"); if(td){ if(!td.dataset.ok){ td.dataset.ok="1"; td.textContent="Tocá otra vez para confirmar"; return; }
+    cobFiltrados().filter(c=>c.cliente===td.dataset.todo&&saldo(c)>0).forEach(c=>R.patch(c.id,{cobrado:+c.total||0,fechaCobro:today()})); status("Pago registrado."); renderCobros(); return; }
+  const it=e.target.closest("[data-c]"); if(it){ const c=R.get(it.dataset.c); if(c) abrirCobro(c.jobId?L.get(c.jobId):null,c); }
+});
+$("c-sin").addEventListener("click",e=>{ const b=e.target.closest("[data-cj]"); if(b){ const j=L.get(b.dataset.cj); if(j) abrirCobro(j); } });
+["c-mes","c-cli","c-saldo"].forEach(id=>$(id).addEventListener("change",renderCobros));
+$("c-q").addEventListener("input",renderCobros);
+$("c-nuevo").addEventListener("click",()=>abrirCobro(null,null));
+function resumen(){
+  const mes=$("c-mes").value, L2=cobFiltrados(); const g=new Map(); L2.forEach(c=>{ if(!g.has(c.cliente)) g.set(c.cliente,[]); g.get(c.cliente).push(c); });
+  let tot=0;
+  const b=[...g.entries()].map(([cli,items])=>{ const t=items.reduce((s,c)=>s+(+c.total||0),0), p=items.reduce((s,c)=>s+saldo(c),0); tot+=t;
+    return `${cli.toUpperCase()} – ${money(t)}\n`+items.sort((a,b)=>a.fecha<b.fecha?-1:1).map(c=>`  ${fdate(c.fecha)} – ${c.paciente} – ${c.trabajo}${c.piezas?" (pieza "+c.piezas+")":""}: ${money(c.total)}`).join("\n")+`\n  ${p<=0?"Pagado":"Saldo "+money(p)}`; });
+  return `G3 Digital Art – Dr. Gonzalo Rodríguez Orsero\nTrabajos ${mes?mes.split("-").reverse().join("/"):""}\n\n${b.join("\n\n")}\n\nTOTAL: ${money(tot)}`;
+}
+$("c-copiar").addEventListener("click",()=>{ const t=resumen();
+  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>status("Resumen copiado. Pegalo en WhatsApp o en un mail.")).catch(()=>{ $("c-txt").hidden=false; $("c-txt").value=t; $("c-txt").select(); status("Copiá el resumen del cuadro.",true); }); });
+$("c-csv").addEventListener("click",()=>{
+  const rows=[["Fecha","Odontólogo","Paciente","Trabajo","Piezas","Cantidad","Precio unitario","Total","Cobrado","Saldo","Fecha de cobro","Notas"]]
+    .concat(cobFiltrados().map(c=>[c.fecha,c.cliente,c.paciente,c.trabajo,c.piezas,c.cant,c.unit,c.total,c.cobrado||0,saldo(c),c.fechaCobro||"",c.notas||""]));
+  const csv="﻿"+rows.map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(";")).join("\n");
+  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download=`g3-cobros-${$("c-mes").value||"todos"}.csv`; a.click();
+});
+
+/* precios */
+function renderPrecios(){
+  $("p-list").innerHTML=precios().map((t,i)=>`<div class="pr"><input value="${esc(t.n)}" data-i="${i}" data-k="n" aria-label="Trabajo"><input type="number" inputmode="numeric" value="${+t.p||""}" placeholder="$" data-i="${i}" data-k="p" aria-label="Precio"><label class="ck"><input type="checkbox" ${t.pieza?"checked":""} data-i="${i}" data-k="pieza"> x pieza</label><button class="link" data-del="${i}" aria-label="Quitar">✕</button></div>`).join("");
+  $("dl-trab").innerHTML=[...new Set(precios().map(t=>t.n).concat(TRABAJOS,L.all().map(j=>j.trabajo).filter(Boolean)))].map(c=>`<option value="${esc(c)}">`).join("");
+}
+function leerPrecios(){ const l=precios().map(x=>Object.assign({},x));
+  $("p-list").querySelectorAll("[data-k]").forEach(el=>{ const t=l[+el.dataset.i]; if(!t) return; const k=el.dataset.k; t[k]=k==="pieza"?el.checked:(k==="p"?(+el.value||0):el.value.trim()); });
+  return l.filter(t=>t.n); }
+$("p-list").addEventListener("click",e=>{ const d=e.target.closest("[data-del]"); if(!d) return; const l=leerPrecios(); l.splice(+d.dataset.del,1); R.setCfg({lista:l}); renderPrecios(); });
+$("p-add").addEventListener("click",()=>{ const l=leerPrecios(); l.push({n:"",p:0,pieza:true}); R.setCfg({lista:l.length?l:PRECIOS0}); renderPrecios(); const ins=$("p-list").querySelectorAll('[data-k="n"]'); ins[ins.length-1]&&ins[ins.length-1].focus(); });
+$("p-guardar").addEventListener("click",()=>{ R.setCfg({lista:leerPrecios()}); renderPrecios(); status("Precios guardados."); });
+R.onChange(()=>{ renderCobros(); render(); });
+$("c-mes").value=today().slice(0,7);
+
 /* ajustes */
 const c0=G3Sync.creds(); $("a-repo").value=c0.repo; $("a-token").value=c0.token;
 function pintaEstado(e){ $("a-estado").textContent=e.msg; const d=$("dot"); d.className="dot"+(e.ok?" ok":(G3Sync.creds().token?" err":"")); d.title=e.msg; }
 G3Sync.onEstado(pintaEstado); pintaEstado(G3Sync.estado());
 $("btn-sync").addEventListener("click",async()=>{ $("a-estado").textContent="Sincronizando…"; const ok=await G3Sync.setCreds($("a-repo").value,$("a-token").value); status(ok?"Sincronización activada.":G3Sync.estado().msg,!ok); });
-$("btn-export").addEventListener("click",()=>{ const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([JSON.stringify({lab:L.exportar()},null,1)],{type:"application/json"})); a.download="g3lab-respaldo-"+today()+".json"; a.click(); });
+$("btn-export").addEventListener("click",()=>{ const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([JSON.stringify({lab:L.exportar(),cobros:R.exportar()},null,1)],{type:"application/json"})); a.download="g3lab-respaldo-"+today()+".json"; a.click(); });
 
 L.onChange(render); render(); G3Sync.syncAll();
 if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
