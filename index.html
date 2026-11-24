@@ -478,7 +478,7 @@ $("btn-export").addEventListener("click",()=>{ const a=document.createElement("a
 
 window.G3_render=()=>{ if(!$("v-lista").hidden) render(); };
 L.onChange(render); render(); G3Sync.syncAll();
-if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{ r.update(); }).catch(()=>{});
 })();
 </script>
 <script>
